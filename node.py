@@ -34,9 +34,9 @@ from job import Job
 from log import Log
 from traffic_model import TrafficModel
 
-import torch
-import torch.nn as nn
-import torch.optim as optim
+# import torch
+# import torch.nn as nn
+# import torch.optim as optim
 import numpy as np
 from typing import List
 
@@ -207,6 +207,11 @@ class Node:
                  net_speed_scheduler_worker_mbits=200000,
                  net_speed_scheduler_cloud_mbits=500,
 
+                 net_speed_scheduler_High_scheduler_mbits=900,
+                 net_speed_UPscheduler_High_scheduler_mbits=1500,
+                 net_speed_High_scheduler_cloud_mbits=1000,
+                 net_speed_High_scheduler_High_worker_mbits=200000,
+
                  delay_probing=0.004,
                  # traffic
                  rate_l=1.0,
@@ -303,6 +308,11 @@ class Node:
         self._net_speed_scheduler_UPscheduler_mbits = net_speed_scheduler_UPscheduler_mbits
         self._net_speed_UPscheduler_cloud_mbits = net_speed_UPscheduler_cloud_mbits
         self._net_speed_UPscheduler_UPworker_mbits = net_speed_UPscheduler_UPworker_mbits
+
+        self._net_speed_scheduler_High_scheduler_mbits = net_speed_scheduler_High_scheduler_mbits
+        self._net_speed_High_scheduler_cloud_mbits = net_speed_High_scheduler_cloud_mbits
+        self._net_speed_UPscheduler_High_scheduler_mbits = net_speed_UPscheduler_High_scheduler_mbits
+        self._net_speed_High_scheduler_High_worker_mbits = net_speed_High_scheduler_High_worker_mbits
 
         # jobs
         self._job_duration_type = job_duration_type
@@ -685,7 +695,7 @@ class Node:
                                f"_process_job_transmission: start transmitting job={job}, action={next_action}")
 
                 if next_action == Job.TransmissionAction.CLIENT_TO_SCHEDULER:
-                    print(f"job={job.get_uid()}, transmission = CLIENT_TO_SCHEDULER")
+                    # print(f"job={job.get_uid()}, transmission = CLIENT_TO_SCHEDULER")
                     # job is sent from the client to the node
                     tt = actual_time(time_to_wait(job, self._net_speed_client_scheduler_mbits),
                                      self._distribution_network_forwarding_sigma)
@@ -695,7 +705,7 @@ class Node:
 
                 elif next_action == Job.TransmissionAction.SCHEDULER_TO_CLOUD:
 
-                    print(f"job={job.get_uid()}, transmission = SCHEDULER_TO_CLOUD")
+                    # print(f"job={job.get_uid()}, transmission = SCHEDULER_TO_CLOUD")
                     tt = actual_time(time_to_wait(job, self._net_speed_scheduler_cloud_mbits),
                                      self._distribution_network_latency_cloud_sigma)
                     # job is transmitted from the scheduler to the worker
@@ -708,7 +718,7 @@ class Node:
                 elif next_action == Job.TransmissionAction.UPSCHEDULER_TO_UPWORKER:
                     # job is transmitted from the scheduler to the worker
 
-                    print(f"job={job.get_uid()}, transmission = UPSCHEDULER_TO_UPWORKER")
+                    # print(f"job={job.get_uid()}, transmission = UPSCHEDULER_TO_UPWORKER")
                     tt = actual_time(time_to_wait(job, self._net_speed_UPscheduler_UPworker_mbits),
                                      self._distribution_network_forwarding_sigma)
                     yield self._env.timeout(tt)
@@ -721,8 +731,8 @@ class Node:
                 elif next_action == Job.TransmissionAction.HIGH_SCHEDULER_TO_HIGH_WORKER:
                     # job is transmitted from the scheduler to the worker
 
-                    print(f"job={job.get_uid()}, transmission = HIGH_SCHEDULER_TO_HIGH_WORKER")
-                    tt = actual_time(time_to_wait(job, self._net_speed_UPscheduler_UPworker_mbits),
+                    # print(f"job={job.get_uid()}, transmission = HIGH_SCHEDULER_TO_HIGH_WORKER")
+                    tt = actual_time(time_to_wait(job, self._net_speed_High_scheduler_High_worker_mbits),
                                      self._distribution_network_forwarding_sigma)
                     yield self._env.timeout(tt)
                     # set the next action
@@ -733,7 +743,7 @@ class Node:
 
                 elif next_action == Job.TransmissionAction.SCHEDULER_TO_WORKER:
 
-                    print(f"job={job.get_uid()}, transmission = SCHEDULER_TO_WORKER")
+                    # print(f"job={job.get_uid()}, transmission = SCHEDULER_TO_WORKER")
                     # job is transmitted from the scheduler to the worker
                     tt = actual_time(time_to_wait(job, self._net_speed_scheduler_worker_mbits),
                                      self._distribution_network_forwarding_sigma)
@@ -745,7 +755,7 @@ class Node:
 
                 elif next_action == Job.TransmissionAction.UPSCHEDULER_TO_CLOUD:
 
-                    print(f"job={job.get_uid()}, transmission = UPSCHEDULER_TO_CLOUD")
+                    # print(f"job={job.get_uid()}, transmission = UPSCHEDULER_TO_CLOUD")
                     tt = actual_time(time_to_wait(job, self._net_speed_UPscheduler_cloud_mbits),
                                      self._distribution_network_latency_cloud_sigma)
                     # job is transmitted from the scheduler to the worker
@@ -758,8 +768,8 @@ class Node:
 
 # // // / ** ** * // // // /
                 elif next_action == Job.TransmissionAction.HIGH_SCHEDULER_TO_CLOUD:
-                    print(f"job={job.get_uid()}, transmission = HIGH_SCHEDULER_TO_CLOUD")
-                    tt = actual_time(time_to_wait(job, self._net_speed_UPscheduler_cloud_mbits),
+                    # print(f"job={job.get_uid()}, transmission = HIGH_SCHEDULER_TO_CLOUD")
+                    tt = actual_time(time_to_wait(job, self._net_speed_High_scheduler_cloud_mbits),
                                      self._distribution_network_latency_cloud_sigma)
                     # job is transmitted from the scheduler to the worker
                     yield self._env.timeout(tt)
@@ -771,7 +781,7 @@ class Node:
 #/////*****///////
 
                 elif next_action == Job.TransmissionAction.SCHEDULER_TO_UPCLUSTER:
-                    print(f"job={job.get_uid()}, transmission = SCHEDULER_TO_UPCLUSTER")
+                    # print(f"job={job.get_uid()}, transmission = SCHEDULER_TO_UPCLUSTER")
                     tt = actual_time(time_to_wait(job, self._net_speed_scheduler_UPscheduler_mbits),
                                      self._distribution_network_forwarding_sigma)
 
@@ -787,8 +797,8 @@ class Node:
 #/////*****///////
 
                 elif next_action == Job.TransmissionAction.SCHEDULER_TO_HIGH_CLUSTER:
-                    print(f"job={job.get_uid()}, transmission = SCHEDULER_TO_HIGH_CLUSTER")
-                    tt = actual_time(time_to_wait(job, self._net_speed_scheduler_UPscheduler_mbits),
+                    # print(f"job={job.get_uid()}, transmission = SCHEDULER_TO_HIGH_CLUSTER")
+                    tt = actual_time(time_to_wait(job, self._net_speed_scheduler_High_scheduler_mbits),
                                      self._distribution_network_forwarding_sigma)
 
                     # job is transmitted from the scheduler to the worker
@@ -803,8 +813,8 @@ class Node:
 
 # /////*****///////
                 elif next_action == Job.TransmissionAction.UPSCHEDULER_TO_HIGH_CLUSTER:
-                    print(f"job={job.get_uid()}, transmission = SCHEDULER_TO_HIGH_CLUSTER")
-                    tt = actual_time(time_to_wait(job, self._net_speed_scheduler_UPscheduler_mbits),
+                    # print(f"job={job.get_uid()}, transmission = SCHEDULER_TO_HIGH_CLUSTER")
+                    tt = actual_time(time_to_wait(job, self._net_speed_UPscheduler_High_scheduler_mbits),
                                      self._distribution_network_forwarding_sigma)
 
                     # job is transmitted from the scheduler to the worker
@@ -819,7 +829,7 @@ class Node:
 
                 # /////*****///////
                 elif next_action == Job.TransmissionAction.SCHEDULER_TO_CLUSTER:
-                    print(f"job={job.get_uid()}, transmission = SCHEDULER_TO_CLUSTER")
+                    # print(f"job={job.get_uid()}, transmission = SCHEDULER_TO_CLUSTER")
                     tt = actual_time(time_to_wait(job, self._net_speed_scheduler_scheduler_mbits),
                                      self._distribution_network_forwarding_sigma)
 
@@ -836,7 +846,7 @@ class Node:
                 # /////////
 
                 elif next_action == Job.TransmissionAction.UPSCHEDULER_TO_CLUSTER:
-                    print(f"job={job.get_uid()}, transmission = UPSCHEDULER_TO_CLUSTER")
+                    # print(f"job={job.get_uid()}, transmission = UPSCHEDULER_TO_CLUSTER")
                     tt = actual_time(time_to_wait(job, self._net_speed_scheduler_UPscheduler_mbits),
                                      self._distribution_network_forwarding_sigma)
 
@@ -851,7 +861,7 @@ class Node:
 
                 # /////*****///////
                 elif next_action == Job.TransmissionAction.HIGH_SCHEDULER_TO_CLUSTER:
-                    print(f"job={job.get_uid()}, transmission = HIGH_SCHEDULER_TO_CLUSTER")
+                    # print(f"job={job.get_uid()}, transmission = HIGH_SCHEDULER_TO_CLUSTER")
                     # print("This is the high scheduler to cluster 22222222")
                     tt = actual_time(time_to_wait(job, self._net_speed_scheduler_UPscheduler_mbits),
                                      self._distribution_network_forwarding_sigma)
@@ -869,23 +879,22 @@ class Node:
                         next_action == Job.TransmissionAction.CLOUD_TO_UPSCHEDULER or next_action == Job.TransmissionAction.CLOUD_TO_SCHEDULER:
                     # speed = self._net_speed_scheduler_cloud_mbits if next_action == Job.TransmissionAction.CLOUD_TO_UPSCHEDULER else self._net_speed_scheduler_worker_mbits
                     if next_action == Job.TransmissionAction.UPWORKER_TO_UPSCHEDULER:
-                        print(f"job={job.get_uid()}, transmission = UPWORKER_TO_UPSCHEDULER")
+                        # print(f"job={job.get_uid()}, transmission = UPWORKER_TO_UPSCHEDULER")
                         speed = self._net_speed_UPscheduler_UPworker_mbits
                     elif next_action == Job.TransmissionAction.HIGH_WORKER_TO_HIGH_SCHEDULER:
-                            # print("This is the high worker to high scheduler  3333333333")
-                            print(f"job={job.get_uid()}, transmission = HIGH_WORKER_TO_HIGH_SCHEDULER")
-                            speed = self._net_speed_UPscheduler_UPworker_mbits
+                            # print(f"job={job.get_uid()}, transmission = HIGH_WORKER_TO_HIGH_SCHEDULER")
+                            speed = self._net_speed_High_scheduler_High_worker_mbits
                     elif next_action == Job.TransmissionAction.WORKER_TO_SCHEDULER:
-                        print(f"job={job.get_uid()}, transmission = WORKER_TO_SCHEDULER")
+                        # print(f"job={job.get_uid()}, transmission = WORKER_TO_SCHEDULER")
                         speed = self._net_speed_scheduler_worker_mbits
                     elif next_action == Job.TransmissionAction.CLOUD_TO_HIGH_SCHEDULER:
-                        print(f"job={job.get_uid()}, transmission = CLOUD_TO_HIGH_SCHEDULER")
-                        speed = self._net_speed_UPscheduler_cloud_mbits
+                        # print(f"job={job.get_uid()}, transmission = CLOUD_TO_HIGH_SCHEDULER")
+                        speed = self._net_speed_High_scheduler_cloud_mbits
                     elif next_action == Job.TransmissionAction.CLOUD_TO_UPSCHEDULER:
-                        print(f"job={job.get_uid()}, transmission = CLOUD_TO_UPSCHEDULER")
+                        # print(f"job={job.get_uid()}, transmission = CLOUD_TO_UPSCHEDULER")
                         speed = self._net_speed_UPscheduler_cloud_mbits
                     elif next_action == Job.TransmissionAction.CLOUD_TO_SCHEDULER:
-                        print(f"job={job.get_uid()}, transmission = CLOUD_TO_SCHEDULER")
+                        # print(f"job={job.get_uid()}, transmission = CLOUD_TO_SCHEDULER")
                         speed = self._net_speed_scheduler_cloud_mbits
                     sigma = self._distribution_network_forwarding_sigma
                     # job is transmitted from the scheduler to the worker
@@ -916,7 +925,7 @@ class Node:
 
 
                 elif next_action == Job.TransmissionAction.UPCLUSTER_TO_SCHEDULER:
-                    print(f"job={job.get_uid()}, transmission = UPCLUSTER_TO_SCHEDULER")
+                    # print(f"job={job.get_uid()}, transmission = UPCLUSTER_TO_SCHEDULER")
                     tt = actual_time(time_to_wait(job, self._net_speed_scheduler_scheduler_mbits),
                                      self._distribution_network_forwarding_sigma)
 
@@ -932,9 +941,9 @@ class Node:
 
                 # //////////*****//////
                 elif next_action == Job.TransmissionAction.HIGH_CLUSTER_TO_SCHEDULER:
-                    print(f"job={job.get_uid()}, transmission = HIGH_CLUSTER_TO_SCHEDULER")
+                    # print(f"job={job.get_uid()}, transmission = HIGH_CLUSTER_TO_SCHEDULER")
                     # print("This is the HIGH_CLUSTER_TO_SCHEDULER 44444444")
-                    tt = actual_time(time_to_wait(job, self._net_speed_scheduler_scheduler_mbits),
+                    tt = actual_time(time_to_wait(job, self._net_speed_scheduler_High_scheduler_mbits),
                                      self._distribution_network_forwarding_sigma)
 
                     # job is transmitted from the scheduler to the worker
@@ -949,7 +958,7 @@ class Node:
 
                 # //////////*****//////
                 elif next_action == Job.TransmissionAction.SCHEDULER_TO_CLIENT:
-                    print(f"job={job.get_uid()}, transmission = SCHEDULER_TO_CLIENT")
+                    # print(f"job={job.get_uid()}, transmission = SCHEDULER_TO_CLIENT")
                     # job returned to client, done
                     # print(f"In SCHEDULER_TO_CLIENT section and the job is {job.get_uid()}")
                     time_to_wait_s = actual_time(time_to_wait(job, self._net_speed_client_scheduler_mbits),
@@ -974,20 +983,20 @@ class Node:
                     self._service_data_storage.done_job(job, self._get_reward(job))
 
                 elif next_action == Job.TransmissionAction.CLUSTER_TO_SCHEDULER:
-                    print(f"job={job.get_uid()}, transmission = CLUSTER_TO_SCHEDULER")
+                    # print(f"job={job.get_uid()}, transmission = CLUSTER_TO_SCHEDULER")
                     # simulate the return to the client
                     originator_node = self._service_discovery.get_node_by_uid(job.get_originator_node_uid())
                     originator_node.return_job_to_client(job)
 
                 elif next_action == Job.TransmissionAction.UPCLUSTER_TO_UPSCHEDULER:
-                    print(f"job={job.get_uid()}, transmission = UPCLUSTER_TO_UPSCHEDULER")
+                    # print(f"job={job.get_uid()}, transmission = UPCLUSTER_TO_UPSCHEDULER")
                     # simulate the return to the client
                     originator_node = self._service_discovery.get_node_by_uid(job.get_originator_node_uid())
                     originator_node.return_job_to_client(job)
 
                 # ///***///
                 elif next_action == Job.TransmissionAction.HIGH_CLUSTER_TO_HIGH_SCHEDULER:
-                    print(f"job={job.get_uid()}, transmission = HIGH_CLUSTER_TO_HIGH_SCHEDULER")
+                    # print(f"job={job.get_uid()}, transmission = HIGH_CLUSTER_TO_HIGH_SCHEDULER")
                     # print("This is the HIGH_CLUSTER_TO_HIGH_SCHEDULER 555555555")
                     # simulate the return to the client
                     originator_node = self._service_discovery.get_node_by_uid(job.get_originator_node_uid())
@@ -1312,6 +1321,7 @@ class Node:
         job.a_in_queue()
 
     def _job_reject(self, job):
+        self.reject_count += 1
         # print(f"This job: {job} has rejected. the deadline of this job is: {job.get_deadline()}")
         job.a_rejected()
         # print(f"job = {job.get_uid()} is rejected.")
@@ -1324,6 +1334,12 @@ class Node:
                 self._job_transmit(job)
             elif self.get_level() == 2:
                 job.set_transmission_next_action(Job.TransmissionAction.UPCLUSTER_TO_SCHEDULER)
+                self._job_transmit(job)
+            elif self.get_level() == 3:
+                if job.get_transmission_next_action() == Job.TransmissionAction.UPSCHEDULER_TO_HIGH_CLUSTER:
+                    job.set_transmission_next_action(Job.TransmissionAction.UPCLUSTER_TO_SCHEDULER)
+                elif job.get_transmission_next_action() == Job.TransmissionAction.SCHEDULER_TO_HIGH_CLUSTER:
+                    job.set_transmission_next_action(Job.TransmissionAction.HIGH_CLUSTER_TO_SCHEDULER)
                 self._job_transmit(job)
 
     def _job_first_dispatching(self, job):
@@ -1507,7 +1523,6 @@ class Node:
             # print(f"this is the action value = {action} for job = {job.get_uid()} and the level = {self.get_level()}")
             if self.get_level() == 1:
                 if action == 0:
-                    self.reject_count += 1
                     return self._job_reject(job)
                 elif action == 1:
                     return self._job_forward_to_cloud(job)
@@ -1528,22 +1543,16 @@ class Node:
             elif self.get_level() == 2:
                 # print(f"ACTION = {action},     THIS IS NEW EXCEPTION :))))")
                 if action == 0:
-                    # print(f"job = {job.get_uid()} must be rejected.")
-                    self.reject_count += 1
                     return self._job_reject(job)
                 elif action == 1:
                     return self._job_forward_to_cloud(job)
                 elif action == 2:
                     return self._job_forward_to_high_cluster(job, 2)
                 else:
-                    # print(f"The level is 2, action = {action}, length of worker nodes = {len(worker_nodes)}")
                     return self._job_forward_to_up_worker(job, worker_nodes[action - 3])
 
             elif self.get_level() == 3:
-                # print(f"ACTION = {action},     THIS IS NEW EXCEPTION :))))")
                 if action == 0:
-                    # print(f"job = {job.get_uid()} must be rejected.")
-                    self.reject_count += 1
                     return self._job_reject(job)
                 elif action == 1:
                     return self._job_forward_to_cloud(job)
