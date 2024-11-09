@@ -1,2 +1,1 @@
-lst[3] = []
-print(lst)
+print("habibi")
